@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):                 
         pars = Parser()
-        bot = Parsing_bot(token,pars)
+        bot = Parsing_bot(token,201091690,pars)
         threading._start_new_thread(bot.start,())
         while True:
             sleep(900)            
