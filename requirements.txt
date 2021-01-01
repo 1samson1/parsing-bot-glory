@@ -1,0 +1,4 @@
+django==3.1.4
+vk_api==11.9.1
+beautifulsoup4==4.9.3
+lxml
