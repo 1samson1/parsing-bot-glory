@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup 
 import datetime
 import json
-#import requests as reqs
+import requests as reqs
 
 class Parser:
     """Класс парсера"""
@@ -13,26 +13,54 @@ class Parser:
 
     def update(self):
         print("Update sheldule")
-        #self.soup =  BeautifulSoup(reqs.get("https://xn--c1akimkh.xn--p1ai/lesson_table_show/").text,'lxml')
-        with open("/mnt/d/Projects/Parsing_Bot/src/index.html","r") as file:     
-            self.soup = BeautifulSoup(file.read(),"lxml") 
+        self.soup =  BeautifulSoup(reqs.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/day={self.get_num_day(1)}").text,'lxml')
+        #with open("/mnt/d/Projects/Parsing_Bot/src/index.html","r") as file:     
+        #    self.soup = BeautifulSoup(file.read(),"lxml") 
+
+    def get_cache(self):
+        with open('./schedule.json','r') as cache_file:
+            return json.load(cache_file)
+
+    def set_cache(self,cache):
+        with open('./schedule.json','w') as cache_file:
+            json.dump(cache,cache_file)
+
 
     def check_lessons(self,bot):
         self.update()
-        with open('./schedule.json','r') as cache:
-            data = json.load(cache)
+        cache = self.get_cache()
+        schedule = self.get_schedule()
+        day = self.soup.select_one('.title-day-shedule').text
 
-        if data[self.get_num_tomorrow()-1] == self.get_schedule():
-            
+        if self.today != self.get_num_day() and datetime.datetime.today().hour > 12:
+            self.today = self.get_num_day()
+            self.today_send = False
+
+        if not self.today_send:             
+            bot.mailing_schedule(schedule,f'Paccписание "{day}" ')
+            self.today_send = True
         else:
-             
+            if cache[self.get_num_day(1)-1] != schedule:                
+                bot.mailing_schedule(
+                    [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day(1)-1][idx] != sch],
+                    f'Изменения в рассписании "{day}" '
+                )
 
-    def get_num_tomorrow(self)
-        tomorrow_day = datetime.date.today().isoweekday()
-        if tomorrow_day >= 6:
+                cache[self.get_num_day(1)-1] = schedule
+                self.set_cache(cache)
+
+                self.get_num_day()
+                self.today_send = True
+
+
+    def get_num_day(self,appday=0):
+        tomorrow_day = datetime.date.today().isoweekday() + appday
+
+        if tomorrow_day >= 5:
             return 1
         else:
             return tomorrow_day
+
 
 
     def get_groups(self):

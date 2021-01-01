@@ -106,12 +106,20 @@ class Parsing_bot:
         else:
             self.send_msg(id,'Не указаны номера групп для отподписки!')
 
+    def mailing_schedule(self,groups,text=""):
+        for gp in groups:            
+            for i in Subscribe.objects.filter(group_subscribe=gp['title']):                
+                self.send_msg(i.profile.external_id,text + f"{gp['title']}: \n" + "\n".join([i for i in gp['lessons']]))
+
     def send_msg(self,peer_id,msg):
-        self.vk.method(
-            'messages.send',
-            {
-                'peer_id':peer_id,
-                'message':msg if msg != None else"",
-                'random_id': random(),
-            }
-        )
+        try:
+            self.vk.method(
+                'messages.send',
+                {
+                    'peer_id':peer_id,
+                    'message':msg if msg != None else"",
+                    'random_id': random(),
+                }
+            )
+        except:
+            print("Permision denied send message!")
