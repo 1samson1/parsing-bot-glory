@@ -14,6 +14,6 @@ class Command(BaseCommand):
         bot = Parsing_bot(token,pars)
         threading._start_new_thread(bot.start,())
         while True:
-            sleep(5)            
+            sleep(900)            
             pars.check_lessons(bot)            
             
