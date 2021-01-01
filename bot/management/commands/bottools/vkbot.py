@@ -64,10 +64,10 @@ class Parsing_bot:
         self.send_msg(id, "\n".join([com['name']+com['info'] for com in self.commands]))
 
     def get_groups(self,id):
-        self.send_msg(id, "Доступные группы:\n" + "\n".join([f"{idx+1}.{val}" for idx, val in enumerate(self.pars.get_groups())])) 
+        self.send_msg(id, "Доступные группы:\n" + "\n".join([f"{idx+1}. {val}" for idx, val in enumerate(self.pars.get_groups())])) 
 
     def get_my_sybscribe(self,id,profile):
-        self.send_msg(id, "Ваши подписки:\n" + "\n".join([f"{idx+1}.{val}" for idx, val in enumerate(Subscribe.objects.filter(profile=profile))]))
+        self.send_msg(id, "Ваши подписки:\n" + "\n".join([f"{idx+1}. {val}" for idx, val in enumerate(Subscribe.objects.filter(profile=profile))]))
 
     def subscribe(self,id,profile,subs):
         response = ''
@@ -109,7 +109,7 @@ class Parsing_bot:
     def mailing_schedule(self,groups,text=""):
         for gp in groups:            
             for i in Subscribe.objects.filter(group_subscribe=gp['title']):                
-                self.send_msg(i.profile.external_id,text + f"{gp['title']}: \n" + "\n".join([i for i in gp['lessons']]))
+                self.send_msg(i.profile.external_id,text + f"{gp['title']}: \n" + "\n".join([f"{idx+1}. {val}" for idx,val in enumerate(gp['lessons'])]))
 
     def send_msg(self,peer_id,msg):
         try:

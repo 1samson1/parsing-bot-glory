@@ -12,10 +12,13 @@ class Parser:
        self.today = 1
 
     def update(self):
-        print("Update sheldule")
-        self.soup =  BeautifulSoup(reqs.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/day={self.get_num_day(1)}").text,'lxml')
-        #with open("/mnt/d/Projects/Parsing_Bot/src/index.html","r") as file:     
-        #    self.soup = BeautifulSoup(file.read(),"lxml") 
+        try:
+            print("Update sheldule")
+            self.soup =  BeautifulSoup(reqs.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/?day={self.get_num_day(1)}").text,'lxml')
+            #with open("/mnt/d/Projects/Parsing_Bot/src/index.html","r") as file:     
+            #    self.soup = BeautifulSoup(file.read(),"lxml") 
+        except:
+            print("Connection error!")
 
     def get_cache(self):
         with open('./schedule.json','r') as cache_file:
@@ -29,7 +32,7 @@ class Parser:
     def check_lessons(self,bot):
         self.update()
         cache = self.get_cache()
-        schedule = self.get_schedule()
+        schedule = self.get_schedule()        
         day = self.soup.select_one('.title-day-shedule').text
 
         if self.today != self.get_num_day() and datetime.datetime.today().hour > 12:
