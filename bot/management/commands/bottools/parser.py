@@ -35,25 +35,24 @@ class Parser:
         schedule = self.get_schedule()        
         day = self.soup.select_one('.title-day-shedule').text
 
-        if self.today != self.get_num_day() and datetime.datetime.today().hour > 12:
+        if self.today != self.get_num_day():
             self.today = self.get_num_day()
             self.today_send = False
 
-        if not self.today_send:             
+        if not self.today_send and datetime.datetime.today().hour > 12:             
             bot.mailing_schedule(schedule,f'Paccписание "{day}" ')
             self.today_send = True
-        else:
-            if cache[self.get_num_day(1)-1] != schedule:                
-                bot.mailing_schedule(
-                    [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day(1)-1][idx] != sch],
-                    f'Изменения в рассписании "{day}" '
-                )
+        elif cache[self.get_num_day(1)-1] != schedule:                
+            bot.mailing_schedule(
+                [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day(1)-1][idx] != sch],
+                f'Изменения в рассписании "{day}" '
+            )
 
-                cache[self.get_num_day(1)-1] = schedule
-                self.set_cache(cache)
+            cache[self.get_num_day(1)-1] = schedule
+            self.set_cache(cache)
 
-                self.get_num_day()
-                self.today_send = True
+            self.get_num_day()
+            self.today_send = True
 
 
     def get_num_day(self,appday=0):
