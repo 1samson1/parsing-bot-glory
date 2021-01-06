@@ -1,24 +1,48 @@
 from bs4 import BeautifulSoup 
 import datetime
 import json
-import requests as reqs
+import requests
+from .logs import Log
+from time import sleep
+from .decor import error_log
+
 
 class Parser:
-    """Класс парсера"""
-    #https://python-scripts.com/beautifulsoup-html-parsing#web-scraping   
-    def __init__(self):        
-       self.update()
-       self.today_send = False
-       self.today = 1
+    """Parser schedule from Glory"""
+    
+    def __init__(self,parser):        
+       self.today_send = True
+       self.today = self.get_num_day()
+       self.parser = parser
+       self.__preload_cache()
 
-    def update(self):
-        try:
-            print("Update sheldule")
-            self.soup =  BeautifulSoup(reqs.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/?day={self.get_num_day(1)}").text,'lxml')
-            #with open("/mnt/d/Projects/Parsing_Bot/src/index.html","r") as file:     
-            #    self.soup = BeautifulSoup(file.read(),"lxml") 
-        except:
-            print("Connection error!")
+    def cicle_check_lessons(self,bot,delay):
+        while True:
+            sleep(delay)            
+            self.check_lessons(bot)        
+
+    @error_log
+    def __preload_cache(self):   
+        Log.write("Preload schedule")
+        schedule = []
+        for i in range(1,7):
+            schedule.append(self.get_schedule(self.load_with_site(i)))
+    
+        self.set_cache(schedule)
+        
+    
+    def load_with_site(self,day):
+        response = requests.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/", params={'day':day})
+        if(response.status_code == requests.codes.ok):
+            return BeautifulSoup(response.text, self.parser)
+        else:
+            raise response.raise_for_status()
+
+
+    def update(self, day):        
+        Log.write("Update sheldule")
+        self.soup = self.load_with_site(day)          
+        
 
     def get_cache(self):
         with open('./schedule.json','r') as cache_file:
@@ -28,11 +52,11 @@ class Parser:
         with open('./schedule.json','w') as cache_file:
             json.dump(cache,cache_file)
 
-
+    @error_log
     def check_lessons(self,bot):
-        self.update()
+        self.update(self.get_num_day(1))
         cache = self.get_cache()
-        schedule = self.get_schedule()        
+        schedule = self.get_schedule(self.soup)        
         day = self.soup.select_one('.title-day-shedule').text
 
         if self.today != self.get_num_day():
@@ -54,7 +78,6 @@ class Parser:
             self.get_num_day()
             self.today_send = True
 
-
     def get_num_day(self,appday=0):
         tomorrow_day = datetime.date.today().isoweekday() + appday
 
@@ -62,8 +85,6 @@ class Parser:
             return 1
         else:
             return tomorrow_day
-
-
 
     def get_groups(self):
         return [i.find("th").text.strip() for i in self.soup.find_all("table")]  
@@ -76,7 +97,6 @@ class Parser:
             "lessons": [i.text.strip() for i in elm.find_all("td")]
         }
 
-    def get_schedule(self):                 
-            return [self.get_array_lessons(i) for i in self.soup.find_all("table")]   
-
+    def get_schedule(self,soup):                 
+        return [self.get_array_lessons(i) for i in soup.find_all("table")]   
         

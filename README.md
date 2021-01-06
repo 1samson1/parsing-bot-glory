@@ -1,1 +1,1 @@
-#Бот доя ВК Varpool
+# Journal Parsing Bot from Glory 

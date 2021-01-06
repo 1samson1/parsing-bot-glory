@@ -3,6 +3,9 @@ import vk_api
 from .messages import VkBotMessages
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType, VkBotMessageEvent
 from random import random
+from .decor import error_log
+from .logs import Log
+from time import sleep
 
 class Parsing_bot:
     """ Класс бота ВК"""
@@ -39,15 +42,18 @@ class Parsing_bot:
             },
         ]
 
-    def start(self):
-        print("Bot started")
-        for event in self.longpoll.listen():
+    def start(self,delay_reconect):
+        Log.write("Bot started")
+        while True:
             try:
-                self.actions(event)
-            except Exception as ex:
-                print(ex)
+                for event in self.longpoll.listen():
+                    self.actions(event)
+            except:
+                sleep(delay_reconect)
+                Log.write("Reconect to VK")
+            
                 
-          
+    @error_log   
     def actions(self,event):        
         if event.type == VkBotEventType.MESSAGE_NEW:                        
             profile, add_user_done = Profile.objects.get_or_create(external_id=event.obj.message['peer_id'])
@@ -156,4 +162,4 @@ class Parsing_bot:
                 }
             )
         except:
-            print("Permision denied send message!")
+            Log.write("Send message denied!")

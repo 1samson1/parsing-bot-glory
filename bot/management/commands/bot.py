@@ -1,19 +1,18 @@
 from django.core.management.base import BaseCommand
 import threading
-from time import sleep
-from .bottools.parser import Parser
-from .bottools.vkbot import Parsing_bot
-from .bottools.token import token
+from .botusr.parser import Parser
+from .botusr.vkbot import Parsing_bot
+from .botusr.config import token, group_id, default_parser_html, delay_check, delay_reconect_vk
 
 
 class Command(BaseCommand):
     help = 'Parsing Bot fot Glory'
 
     def handle(self, *args, **options):                 
-        pars = Parser()
-        bot = Parsing_bot(token,201091690,pars)
-        threading._start_new_thread(bot.start,())
-        while True:
-            sleep(900)            
-            pars.check_lessons(bot)            
+        pars = Parser(default_parser_html)
+        bot = Parsing_bot(token, group_id, pars)
+
+        threading._start_new_thread(bot.start,(delay_reconect_vk,))
+        
+        pars.cicle_check_lessons(bot,delay_check)
             
