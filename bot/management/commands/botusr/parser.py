@@ -10,8 +10,8 @@ from .decor import error_log
 class Parser:
     """Parser schedule from Glory"""
     
-    def __init__(self,parser, today_send=True,send_after=12):        
-       self.today_send = today_send
+    def __init__(self,parser, today_sended=True,send_after=12):        
+       self.today_sended = today_sended
        self.today = self.get_num_day()
        self.send_after = send_after
        self.parser = parser
@@ -62,12 +62,12 @@ class Parser:
 
         if self.today != self.get_num_day():
             self.today = self.get_num_day()
-            self.today_send = False
+            self.today_sended = False
 
-        if not self.today_send and datetime.datetime.today().hour >= self.send_after:             
+        if not self.today_sended and datetime.datetime.today().hour >= self.send_after:             
             bot.mailing_schedule(schedule,f'Paccписание "{day}" ')
             Log.write("Send default schedule tomorrow")
-            self.today_send = True
+            self.today_sended = True
         elif cache[self.get_num_day(1)-1] != schedule:                
             bot.mailing_schedule(
                 [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day(1)-1][idx] != sch],
@@ -78,7 +78,7 @@ class Parser:
             self.set_cache(cache)
             
             Log.write("Send updated schedule tomorrow")
-            self.today_send = True
+            self.today_sended = True
 
     def get_num_day(self,appday=0):
         tomorrow_day = datetime.date.today().isoweekday() + appday
