@@ -55,7 +55,7 @@ class Parser:
 
     @error_log
     def check_lessons(self,bot):
-        self.update(self.get_num_day(1))
+        self.update(self.get_num_day())
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)        
         day = self.soup.select_one('.title-day-shedule').text
@@ -68,19 +68,19 @@ class Parser:
             bot.mailing_schedule(schedule,f'Paccписание "{day}" ')
             Log.write("Send default schedule tomorrow")
             self.today_sended = True
-        elif cache[self.get_num_day(1)-1] != schedule:                
+        elif cache[self.get_num_day()-1] != schedule:                
             bot.mailing_schedule(
-                [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day(1)-1][idx] != sch],
+                [sch for idx,sch in enumerate(schedule) if cache[self.get_num_day()-1][idx] != sch],
                 f'Изменения в рассписании "{day}" '
             )
 
-            cache[self.get_num_day(1)-1] = schedule
+            cache[self.get_num_day()-1] = schedule
             self.set_cache(cache)
             
             Log.write("Send updated schedule tomorrow")
             self.today_sended = True
 
-    def get_num_day(self,appday=0):
+    def get_num_day(self,appday=1):
         tomorrow_day = datetime.date.today().isoweekday() + appday
 
         if tomorrow_day > 5:
