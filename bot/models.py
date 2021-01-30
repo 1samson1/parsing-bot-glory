@@ -26,3 +26,16 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = "Подписки пользователей"
         verbose_name_plural = "Подписки пользователей"
+
+class SendedGroups(models.Model):
+    """Группы которым отправлено рассписание"""
+
+    date = models.DateField("Дата", auto_now_add=True)
+    group = models.CharField("Группа",max_length=100)
+
+    def __str__(self):
+        return self.group
+    
+    class Meta:
+        verbose_name = "Расписание отправленое группам"
+        verbose_name_plural = "Расписание отправленое группам"

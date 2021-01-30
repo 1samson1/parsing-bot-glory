@@ -1,5 +1,5 @@
 from datetime import datetime
-from .config import logs
+from django.conf import settings as conf
 
 
 class Log:
@@ -7,7 +7,7 @@ class Log:
     def write(cls, text, log_file="logs.txt"):
         format_text= f'[{datetime.today()}] {text}\n'
         print(format_text, end="")
-        if logs:
+        if conf.LOGS:
             with open(log_file, "a") as log:
                 log.write(format_text)
       
