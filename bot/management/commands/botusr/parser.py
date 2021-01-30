@@ -11,12 +11,13 @@ from bot.models import SendedGroups
 class Parser:
     """Parser schedule from Glory"""
     
-    def __init__(self,parser, today_sended=True,send_after=12):        
-       self.today_sended = today_sended
+    def __init__(self, parser, send_after=12, preload_cache=True):        
        self.today = self.get_num_day()
        self.send_after = send_after
        self.parser = parser
-       self.__preload_cache()
+       if preload_cache:
+           self.__preload_cache()
+       self.update(self.today)
 
     def cicle_check_lessons(self,bot,delay):
         while True:
@@ -31,8 +32,6 @@ class Parser:
             schedule.append(self.get_schedule(self.load_with_site(i)))
    
         self.set_cache(schedule)
-        self.update(self.get_num_day())
-
 
     def load_with_site(self,day):
         response = requests.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/", params={'day':day})
@@ -57,44 +56,42 @@ class Parser:
 
     @error_log
     def check_lessons(self,bot):
-        self.update(self.get_num_day())
+        if self.today != self.get_num_day():
+            self.today = self.get_num_day()     
+
+        self.update(self.today)
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)  
         sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=datetime.date.today())]  
         day = self.soup.select_one('.title-day-shedule').text
 
-        if self.today != self.get_num_day():
-            self.today = self.get_num_day()
-            self.today_sended = False
-
-        if not self.today_sended and len(sended_groups) < len(schedule) and datetime.datetime.today().hour >= self.send_after:             
+        if len(sended_groups) < len(schedule) and datetime.datetime.today().hour >= self.send_after:             
             send_groups = []
             for sch in schedule:
-                if sch.title in sended_groups:
+                if sch['title'] not in sended_groups:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch.title)
+                    SendedGroups.objects.get_or_create(group=sch["title"])
 
             bot.mailing_schedule(
                 send_groups,
                 f'Paccписание "{day}" '
             )
-
-            self.today_sended = True
+            
             Log.write("Send default schedule tomorrow")
-        elif cache[self.get_num_day()-1] != schedule: 
+        elif cache[self.today-1] != schedule: 
 
             send_groups = []
             for idx,sch in enumerate(schedule):
-                if cache[self.get_num_day()-1][idx] != sch:
+                if cache[self.today-1][idx] != sch:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch.title)
+                    SendedGroups.objects.get_or_create(group=sch["title"])
 
             bot.mailing_schedule(
                 send_groups,
                 f'Изменения в рассписании "{day}" '
             )
 
-            cache[self.get_num_day()-1] = schedule
+            cache[self.today-1] = schedule
             self.set_cache(cache)
             
             Log.write("Send updated schedule tomorrow")            

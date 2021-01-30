@@ -9,7 +9,11 @@ class Command(BaseCommand):
     help = 'Parsing Bot fot Glory'
 
     def handle(self, *args, **options):                 
-        pars = Parser(conf.DEFAULT_PARSER_HTML,conf.TODAY_SENDED, conf.SEND_AFTER)
+        pars = Parser(
+            conf.DEFAULT_PARSER_HTML,
+            conf.SEND_AFTER,
+            conf.PRELOAD_CACHE
+        )
         bot = Parsing_bot(conf.TOKEN_BOT, conf.GROUP_ID, pars)
 
         threading._start_new_thread(bot.start,(conf.DELAY_RECONECT_VK,))

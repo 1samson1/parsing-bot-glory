@@ -146,7 +146,7 @@ class Parsing_bot:
             self.send_msg(profile.external_id,VkBotMessages.NO_GROUP_FOR_UNSUB.value)
     
     def show_sch(self,id,group):
-        cache = self.pars.get_cache()[self.pars.get_num_day()-1]
+        cache = self.pars.get_cache()[self.pars.today-1]
         
         if 0 < int(group) < len(cache)+1:  
             self.send_msg(id,"Расписание " + f"{cache[int(group)-1]['title']}: \n" + "\n".join([f"{idx+1}. {val}" for idx,val in enumerate(cache[int(group)-1]['lessons'])]))
