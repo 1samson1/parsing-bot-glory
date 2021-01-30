@@ -11,6 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):                 
         pars = Parser(
             conf.DEFAULT_PARSER_HTML,
+            conf.TODAY_SENDED,
             conf.SEND_AFTER,
             conf.PRELOAD_CACHE
         )

@@ -11,8 +11,9 @@ from bot.models import SendedGroups
 class Parser:
     """Parser schedule from Glory"""
     
-    def __init__(self, parser, send_after=12, preload_cache=True):        
+    def __init__(self, parser, today_sended=False, send_after=12, preload_cache=True):        
        self.today = self.get_num_day()
+       self.today_sended = today_sended
        self.send_after = send_after
        self.parser = parser
        if preload_cache:
@@ -57,7 +58,8 @@ class Parser:
     @error_log
     def check_lessons(self,bot):
         if self.today != self.get_num_day():
-            self.today = self.get_num_day()     
+            self.today = self.get_num_day()
+            self.today_sended = False 
 
         self.update(self.today)
         cache = self.get_cache()
@@ -65,7 +67,7 @@ class Parser:
         sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=datetime.date.today())]  
         day = self.soup.select_one('.title-day-shedule').text
 
-        if len(sended_groups) < len(schedule) and datetime.datetime.today().hour >= self.send_after:             
+        if not self.today_sended and len(sended_groups) < len(schedule) and datetime.datetime.today().hour >= self.send_after:             
             send_groups = []
             for sch in schedule:
                 if sch['title'] not in sended_groups:
@@ -77,6 +79,7 @@ class Parser:
                 f'Paccписание "{day}" '
             )
             
+            self.today_sended = True
             Log.write("Send default schedule tomorrow")
         elif cache[self.today-1] != schedule: 
 
