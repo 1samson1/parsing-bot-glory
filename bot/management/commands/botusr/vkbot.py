@@ -36,6 +36,11 @@ class Parsing_bot:
                 'info':' - отписаться от групп',
             },
             {
+                'name':'показать',
+                'alias':['показать','show'],
+                'info':' - показать расписание группы',
+            },
+            {
                 'name':'помощь',
                 'alias':['помошь','help','h','faq'],
                 'info':' - получить инструкцию использования',
@@ -85,7 +90,10 @@ class Parsing_bot:
             elif cmd in self.commands[3]['alias']: #отписка от группы
                 self.unsubscribe(profile,cmd_spl[1::])     
 
-            elif cmd in self.commands[4]['alias']: #инструкция
+            elif cmd in self.commands[4]['alias']: #показать распимание группы
+                self.show_sch(profile.external_id,cmd_spl[1])      
+
+            elif cmd in self.commands[5]['alias']: #инструкция
                 self.get_help(profile.external_id)      
 
             else:                
@@ -137,6 +145,14 @@ class Parsing_bot:
         else:
             self.send_msg(profile.external_id,VkBotMessages.NO_GROUP_FOR_UNSUB.value)
     
+    def show_sch(self,id,group):
+        cache = self.pars.get_cache()[self.pars.get_num_day()-1]
+        
+        if 0 < int(group) < len(cache)+1:  
+            self.send_msg(id,"Расписание " + f"{cache[int(group)-1]['title']}: \n" + "\n".join([f"{idx+1}. {val}" for idx,val in enumerate(cache[int(group)-1]['lessons'])]))
+        else:
+            self.send_msg(id, f"\nГруппы с номером {group} нет в списке доступных!") 
+
     def get_help(self,id):
         self.send_msg(id,VkBotMessages.HELP.value)
 
