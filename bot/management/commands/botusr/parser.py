@@ -67,7 +67,7 @@ class Parser:
         sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=date.today())]  
         day = self.soup.select_one('.title-day-shedule').text
 
-        if not self.today_sended and len(sended_groups) < len(schedule) and (datetime.today() - timedelta(hours=self.send_after)).hour >= 0:             
+        if not self.today_sended and len(sended_groups) < len(schedule):             
             send_groups = []
             for sch in schedule:
                 if sch['title'] not in sended_groups:
@@ -100,7 +100,7 @@ class Parser:
             Log.write("Send updated schedule tomorrow")            
 
     def get_num_day(self,appday=1):
-        tomorrow_day = date.today().isoweekday() + appday
+        tomorrow_day = (datetime.today() - timedelta(hours=self.send_after)).isoweekday() + appday
 
         #if 5 < tomorrow_day < 8:
         #    return 5
