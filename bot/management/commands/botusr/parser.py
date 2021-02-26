@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup 
-import datetime
+from datetime import datetime, date, timedelta
 import json
 import requests
 from .logs import Log
@@ -64,15 +64,15 @@ class Parser:
         self.update(self.today)
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)  
-        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=datetime.date.today())]  
+        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=date.today())]  
         day = self.soup.select_one('.title-day-shedule').text
 
-        if not self.today_sended and len(sended_groups) < len(schedule) and datetime.datetime.today().hour >= self.send_after:             
+        if not self.today_sended and len(sended_groups) < len(schedule) and (datetime.today() - timedelta(hours=self.send_after)).hour >= 0:             
             send_groups = []
             for sch in schedule:
                 if sch['title'] not in sended_groups:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"])
+                    SendedGroups.objects.get_or_create(group=sch["title"],date=date.today())
 
             bot.mailing_schedule(
                 send_groups,
@@ -87,7 +87,7 @@ class Parser:
             for idx,sch in enumerate(schedule):
                 if cache[self.today-1][idx] != sch:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"])
+                    SendedGroups.objects.get_or_create(group=sch["title"],date=date.today())
 
             bot.mailing_schedule(
                 send_groups,
@@ -100,10 +100,10 @@ class Parser:
             Log.write("Send updated schedule tomorrow")            
 
     def get_num_day(self,appday=1):
-        tomorrow_day = datetime.date.today().isoweekday() + appday
+        tomorrow_day = date.today().isoweekday() + appday
 
-        if 5 < tomorrow_day < 8:
-            return 5
+        #if 5 < tomorrow_day < 8:
+        #    return 5
         if tomorrow_day > 5:
             return 1
         else:
