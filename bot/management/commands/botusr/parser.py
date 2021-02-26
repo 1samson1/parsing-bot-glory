@@ -12,9 +12,9 @@ class Parser:
     """Parser schedule from Glory"""
     
     def __init__(self, parser, today_sended=False, send_after=12, preload_cache=True):        
-       self.today = self.get_num_day()
-       self.today_sended = today_sended
        self.send_after = send_after
+       self.today_sended = today_sended
+       self.today = self.get_num_day()
        self.parser = parser
        if preload_cache:
            self.__preload_cache()
