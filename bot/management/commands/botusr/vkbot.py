@@ -77,7 +77,7 @@ class Parsing_bot:
         else:
             cmd = cmd_spl[0].lower()[1::]
         
-        if event.from_user or (cmd_spl[0].lower()[0] == "/"): # and  self.is_admin(profile.external_id,event.obj.message['from_id'])):
+        if event.from_user or ((cmd_spl[0].lower()[0] == "/") and self.is_admin(profile.external_id,event.obj.message['from_id'])):
             if cmd in self.commands[0]['alias']: #показ доступных групп
                 self.get_groups(profile.external_id)
 

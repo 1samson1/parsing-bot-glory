@@ -110,16 +110,16 @@ class Parser:
             return tomorrow_day
 
     def get_groups(self):
-        return [i.find("th").text.strip() for i in self.soup.find_all("table")]  
+        return [i.find("a").text.strip() for i in self.soup.select(".box-group")]  
 
     def get_array_lessons(self,elm):
         """ Get group name and group lessons """       
         
         return {
-            "title": elm.find("th").text.strip(),
+            "title": elm.find("a").text.strip(),
             "lessons": [i.text.strip() for i in elm.find_all("td")]
         }
 
     def get_schedule(self,soup):                 
-        return [self.get_array_lessons(i) for i in soup.find_all("table")]   
+        return [self.get_array_lessons(i) for i in soup.select(".box-group")]   
         
