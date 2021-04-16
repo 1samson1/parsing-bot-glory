@@ -1,5 +1,6 @@
 from .logs import Log
 from requests.exceptions import ConnectionError
+import traceback
 
 def error_log(func):
     def wrapper(*args,**kwargs):
@@ -10,5 +11,6 @@ def error_log(func):
 
         except Exception as ex:
             Log.write(ex)
+            Log.write(traceback.format_exc())
 
     return wrapper
