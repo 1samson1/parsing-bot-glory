@@ -78,8 +78,12 @@ class Parser:
                 send_groups,
                 f'Paccписание "{day}" '
             )
-            
+
             self.today_sended = True
+            
+            cache[self.today-1] = schedule
+            self.set_cache(cache)
+            
             Log.write("Send default schedule tomorrow")
         elif cache[self.today-1] != schedule: 
 
