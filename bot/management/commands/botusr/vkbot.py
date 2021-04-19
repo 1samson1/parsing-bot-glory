@@ -64,7 +64,7 @@ class Parsing_bot:
             profile, add_user_done = Profile.objects.get_or_create(external_id=event.obj.message['peer_id'])
             if add_user_done:                
                 self.get_commands(profile.external_id,VkBotMessages.HELLO.value)
-            else:
+            elif 'text' in event.obj.message:
                 self.select_action(event,profile)
 
     def select_action(self,event,profile):
