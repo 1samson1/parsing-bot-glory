@@ -65,7 +65,7 @@ class Parser:
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)  
         sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=date.today())]  
-        day = self.soup.select_one('.title-day-shedule').text
+        day = self.get_day()
 
         if not self.today_sended and len(sended_groups) < len(schedule):             
             send_groups = []
@@ -80,7 +80,7 @@ class Parser:
             )
 
             self.today_sended = True
-            
+
             cache[self.today-1] = schedule
             self.set_cache(cache)
             
@@ -112,6 +112,9 @@ class Parser:
             return 1
         else:
             return tomorrow_day
+    
+    def get_day(self):
+        return self.soup.select_one('.title-day-shedule').text
 
     def get_groups(self):
         return [i.find("a").text.strip() for i in self.soup.select(".box-group")]  
