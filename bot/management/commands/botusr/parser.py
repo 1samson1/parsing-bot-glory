@@ -64,7 +64,7 @@ class Parser:
         self.update(self.today)
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)  
-        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=date.today())]  
+        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=(datetime.today() - timedelta(hours=self.send_after)))]  
         day = self.get_day()
 
         if not self.today_sended and len(sended_groups) < len(schedule):             
@@ -72,7 +72,7 @@ class Parser:
             for sch in schedule:
                 if sch['title'] not in sended_groups:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"],date=date.today())
+                    SendedGroups.objects.get_or_create(group=sch["title"],date=(datetime.today() - timedelta(hours=self.send_after)))
 
             bot.mailing_schedule(
                 send_groups,
@@ -91,7 +91,7 @@ class Parser:
             for idx,sch in enumerate(schedule):
                 if cache[self.today-1][idx] != sch:
                     send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"],date=date.today())
+                    SendedGroups.objects.get_or_create(group=sch["title"],date=(datetime.today() - timedelta(hours=self.send_after)))
 
             bot.mailing_schedule(
                 send_groups,
