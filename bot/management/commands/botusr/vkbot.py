@@ -178,5 +178,6 @@ class Parsing_bot:
                 }
             )       
             
-        except:
+        except Exception as ex:
             Log.write("Send message denied!")
+            Log.write(ex)
