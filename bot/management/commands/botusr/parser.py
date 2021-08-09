@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup 
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 import json
 import requests
 from .logs import Log
@@ -30,21 +30,28 @@ class Parser:
         Log.write("Preload schedule")
         schedule = []
         for i in range(1,7):
-            schedule.append(self.get_schedule(self.load_with_site(i)))
+            schedule.append(self.get_schedule(self.load_site(i)))
+            #schedule.append(self.get_schedule(self.load_file("data/test.html")))
    
         self.set_cache(schedule)
 
-    def load_with_site(self,day):
+    def load_site(self,day):
         response = requests.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/", params={'day':day})
         if(response.status_code == requests.codes.ok):
             return BeautifulSoup(response.text, self.parser)
         else:
             raise response.raise_for_status()
 
+    def load_file(self, path):        
+        with open(path, "r") as file:
+            content = file.read()
+            return BeautifulSoup(content, self.parser)
+
 
     def update(self, day):        
         Log.write("Update sheldule")
-        self.soup = self.load_with_site(day)          
+        self.soup = self.load_site(day)          
+        #self.soup = self.load_file("data/test.html")         
         
 
     def get_cache(self):
@@ -64,20 +71,14 @@ class Parser:
         self.update(self.today)
         cache = self.get_cache()
         schedule = self.get_schedule(self.soup)  
-        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=(datetime.today() - timedelta(hours=self.send_after)))]  
+        sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=self.get_offset_date())]  
         day = self.get_day()
 
         if not self.today_sended and len(sended_groups) < len(schedule):             
-            send_groups = []
-            for sch in schedule:
-                if sch['title'] not in sended_groups:
-                    send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"],date=(datetime.today() - timedelta(hours=self.send_after)))
-
-            bot.mailing_schedule(
-                send_groups,
-                f'Paccписание "{day}" '
-            )
+            for group in schedule:
+                if group['title'] not in sended_groups:
+                    bot.mailing_schedule( group, f'Paccписание "{day}" ')
+                    SendedGroups.objects.get_or_create(group=group["title"],date=self.get_offset_date())
 
             self.today_sended = True
 
@@ -85,26 +86,21 @@ class Parser:
             self.set_cache(cache)
             
             Log.write("Send default schedule tomorrow")
+
         elif cache[self.today-1] != schedule: 
-
-            send_groups = []
-            for idx,sch in enumerate(schedule):
-                if cache[self.today-1][idx] != sch:
-                    send_groups.append(sch)
-                    SendedGroups.objects.get_or_create(group=sch["title"],date=(datetime.today() - timedelta(hours=self.send_after)))
-
-            bot.mailing_schedule(
-                send_groups,
-                f'Изменения в рассписании "{day}" '
-            )
+            
+            for idx,group in enumerate(schedule):
+                if cache[self.today-1][idx] != group:
+                    bot.mailing_schedule( group, f'Изменения в рассписании "{day}" ')                    
+                    SendedGroups.objects.get_or_create(group=group["title"],date=self.get_offset_date())
 
             cache[self.today-1] = schedule
             self.set_cache(cache)
             
             Log.write("Send updated schedule tomorrow")            
 
-    def get_num_day(self,appday=1):
-        tomorrow_day = (datetime.today() - timedelta(hours=self.send_after)).isoweekday() + appday
+    def get_num_day(self):
+        tomorrow_day = self.get_offset_date().isoweekday() + 1
 
         #if 5 < tomorrow_day < 8:
         #    return 5
@@ -112,6 +108,9 @@ class Parser:
             return 1
         else:
             return tomorrow_day
+
+    def get_offset_date(self):
+        return datetime.today() - timedelta(hours=self.send_after)
     
     def get_day(self):
         return self.soup.select_one('.title-day-shedule').text

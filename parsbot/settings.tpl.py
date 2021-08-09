@@ -123,12 +123,13 @@ STATIC_URL = '/static/'
 
 #Bot settings
 
-DEFAULT_PARSER_HTML = 'html.parser'
+DEFAULT_PARSER_HTML = 'lxml'
 
 # SECURITY WARNING: keep the secret key used in production secret!
+
 TOKEN_BOT = ""
 
-GROUP_ID = 201091690
+GROUP_ID = 000000000
 
 DELAY_RECONECT_VK = 20
 
