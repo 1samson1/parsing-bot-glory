@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-from .botusr.parser import Parser
-from .botusr.vkbot import Parsing_bot
+from .botrd.parser import Parser
+from .botrd.vkbot import Parsing_bot
 from django.conf import settings as conf
 import threading
 

@@ -97,7 +97,7 @@ class Parser:
             cache[self.today-1] = schedule
             self.set_cache(cache)
             
-            Log.write("Send updated schedule tomorrow")            
+            Log.write("Send updated schedule tomorrow")     
 
     def get_num_day(self):
         tomorrow_day = self.get_offset_date().isoweekday() + 1
