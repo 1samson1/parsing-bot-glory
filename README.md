@@ -6,7 +6,7 @@ For run bot use:
 python manage.py bot
 ```
 
-For run site and adminpanel use:
+For run adminpanel use:
 
 ```
 python manage.py runserver

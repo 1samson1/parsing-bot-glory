@@ -1,7 +1,7 @@
 from bot.models import Profile, Subscribe
 import vk_api
 from .messages import VkBotMessages
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType, VkBotMessageEvent
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from random import random
 from .decor import error_log
 from .logs import Log
