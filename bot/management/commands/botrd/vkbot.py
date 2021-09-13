@@ -137,13 +137,13 @@ class Parsing_bot:
         else:
             self.send_msg(profile.external_id,VkBotMessages.NO_GROUP_FOR_UNSUB.value)
     
-    def show_sch(self, profile, group, *args, **kargs):
+    def show_sch(self, profile, items, *args, **kargs):
         cache = self.pars.get_cache()[self.pars.today-1]
         
-        if 0 < int(group) < len(cache)+1:  
-            self.send_msg(profile.external_id,"Расписание " + f"{cache[int(group)-1]['title']}: \n" + "\n".join([f"{idx+1}. {val}" for idx,val in enumerate(cache[int(group)-1]['lessons'])]))
+        if 0 < int(items[0]) < len(cache)+1:  
+            self.send_msg(profile.external_id,"Расписание " + f"{cache[int(items[0])-1]['title']}: \n" + "\n".join([f"{idx+1}. {val}" for idx,val in enumerate(cache[int(items[0])-1]['lessons'])]))
         else:
-            self.send_msg(profile.external_id, f"\nГруппы с номером {group} нет в списке доступных!") 
+            self.send_msg(profile.external_id, f"\nГруппы с номером {items[0]} нет в списке доступных!") 
 
     def get_help(self, profile, *args, **kargs):
         self.send_msg(profile.external_id, VkBotMessages.HELP.value)

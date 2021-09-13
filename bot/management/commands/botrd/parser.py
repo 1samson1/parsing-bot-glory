@@ -36,7 +36,7 @@ class Parser:
         self.set_cache(schedule)
 
     def load_site(self,day):
-        response = requests.get(f"https://xn--c1akimkh.xn--p1ai/lesson_table_show/", params={'day':day})
+        response = requests.get("https://xn----3-iddzneycrmpn.xn--p1ai/lesson_table_show/", params={'day':day})
         if(response.status_code == requests.codes.ok):
             return BeautifulSoup(response.text, self.parser)
         else:
@@ -74,7 +74,7 @@ class Parser:
         sended_groups = [sch.group for sch in SendedGroups.objects.filter(date=self.get_offset_date())]  
         day = self.get_day()
 
-        if not self.today_sended and len(sended_groups) < len(schedule):             
+        if not self.today_sended:             
             for group in schedule:
                 if group['title'] not in sended_groups:
                     bot.mailing_schedule( group, f'Paccписание "{day}" ')
