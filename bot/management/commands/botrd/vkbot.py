@@ -58,18 +58,18 @@ class Parsing_bot:
         while True:
             try:
                 for event in self.longpoll.listen():
-                    self.actions(event)
+                    self.entry(event)
             except:
                 sleep(delay_reconect)
                 Log.write("Reconect to VK")
             
                 
     @error_log   
-    def actions(self,event):        
+    def entry(self,event):        
         if event.type == VkBotEventType.MESSAGE_NEW:                        
             profile, add_user_done = Profile.objects.get_or_create(external_id=event.obj.message['peer_id'])
             if add_user_done:                
-                self.get_commands(profile.external_id,VkBotMessages.HELLO.value)
+                self.get_commands(profile,VkBotMessages.HELLO.value)
             elif 'text' in event.obj.message and event.obj.message['text'] != '':
                 self.select_action(event,profile)
 
