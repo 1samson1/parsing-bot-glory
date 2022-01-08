@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,10 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = str(os.environ.get('DEBUG')).lower() == 'true'
 
 ALLOWED_HOSTS = ["*"]
 
@@ -121,21 +121,19 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-#Bot settings
+# Bot settings
 
 DEFAULT_PARSER_HTML = 'lxml'
 
-# SECURITY WARNING: keep the secret key used in production secret!
+TOKEN_BOT = str(os.environ.get('TOKEN_BOT'))
 
-TOKEN_BOT = ""
-
-GROUP_ID = 000000000
+GROUP_ID = int(os.environ.get('GROUP_ID'))
 
 DELAY_RECONECT_VK = 20
 
 DELAY_CHECK = 1200
 
-TODAY_SENDED = False
+TODAY_SENDED = True
 
 PRELOAD_CACHE = True
 

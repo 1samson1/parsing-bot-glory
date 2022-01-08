@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class VkBotMessages(Enum):
 
     NO_ACCESS = 'Я не могу корректно работать, мне нужны права администратора!'

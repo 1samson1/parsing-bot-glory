@@ -1,7 +1,7 @@
 **/__pycache__
 **/migrations/[0-9]*
+.env
 data
-parsbot/settings.py
 db.sqlite3
 schedule.json
 logs.txt

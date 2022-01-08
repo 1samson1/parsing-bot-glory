@@ -2,9 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+import dotenv
 
 def main():
+    # Load environment variables
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    if(os.path.exists(dotenv_path)):
+        dotenv.load_dotenv(dotenv_path)
+
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'parsbot.settings')
     try:
