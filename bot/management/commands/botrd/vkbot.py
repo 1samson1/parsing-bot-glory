@@ -48,7 +48,7 @@ class Parsing_bot:
             },
             {
                 'name': 'помощь',
-                'alias': ('помошь', 'help', 'h', 'faq'),
+                'alias': ('помощь', 'help', 'h', 'faq'),
                 'info': ' - получить инструкцию использования',
                 'command': self.get_help,
             },

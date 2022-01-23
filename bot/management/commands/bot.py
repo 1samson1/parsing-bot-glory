@@ -6,7 +6,7 @@ import threading
 
 
 class Command(BaseCommand):
-    help = 'Parsing Bot fot Glory'
+    help = 'Parsing Bot for Glory'
 
     def handle(self, *args, **options):         
         try:        
