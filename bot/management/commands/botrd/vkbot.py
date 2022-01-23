@@ -15,44 +15,7 @@ class Parsing_bot:
         self.pars = pars
         self.vk = vk_api.VkApi(token=token)
         self.longpoll = VkBotLongPoll(self.vk, group_id=group_id)
-        self.commands = (
-            {
-                'name': 'группы',
-                'alias': ('группы', 'groups', 'gps', 'group', 'gp'),
-                'info': ' - список доступных групп',
-                'command': self.get_groups,
-            },
-            {
-                'name': 'подписки',
-                'alias': ('подписки', 'subs'),
-                'info': ' - список ваших подписок',
-                'command': self.get_my_sybscribe,
-            },
-            {
-                'name': 'подписаться',
-                'alias': ('подписаться', 'sub'),
-                'info': ' - подписакься на рассылку доступных групп',
-                'command': self.subscribe,
-            },
-            {
-                'name': 'отписаться',
-                'alias': ('отписаться', 'unsub'),
-                'info': ' - отписаться от групп',
-                'command': self.unsubscribe,
-            },
-            {
-                'name': 'показать',
-                'alias': ('показать', 'show'),
-                'info': ' - показать расписание группы',
-                'command': self.show_sch,
-            },
-            {
-                'name': 'помощь',
-                'alias': ('помощь', 'help', 'h', 'faq'),
-                'info': ' - получить инструкцию использования',
-                'command': self.get_help,
-            },
-        )
+        self.commands = [] 
 
     def start(self, delay_reconect):
         Log.write("Bot started")
@@ -88,75 +51,13 @@ class Parsing_bot:
 
             for command in self.commands:
                 if cmd in command['alias']:
-                    return command["command"](profile, cmd_spl[1::])
+                    return command["command"](self, profile, cmd_spl[1::])
 
             self.get_commands(profile, VkBotMessages.I_DONT_KNOW.value)
 
     def get_commands(self, profile, text="", *args, **kargs):
         self.send_msg(profile.external_id, text +
                       "\n".join([com['name']+com['info'] for com in self.commands]))
-
-    def get_groups(self, profile, *args, **kargs):
-        self.send_msg(profile.external_id, "Доступные группы:\n" + "\n".join(
-            [f"{idx+1}. {val}" for idx, val in enumerate(self.pars.get_groups())]))
-
-    def get_my_sybscribe(self, profile, *args, **kargs):
-        self.send_msg(profile.external_id, "Ваши подписки:\n" + "\n".join(
-            [f"{idx+1}. {val}" for idx, val in enumerate(Subscribe.objects.filter(profile=profile))]))
-
-    def subscribe(self, profile, subs, *args, **kargs):
-        response = ''
-        groups = self.pars.get_groups()
-        for sub in subs:
-            try:
-                if 0 < int(sub) < len(groups)+1:
-                    Subscribe.objects.get_or_create(
-                        profile=profile, group_subscribe=groups[int(sub)-1])
-                    response = f"Подписка на группу {groups[int(sub)-1]} успешно оформлена"
-                else:
-                    response = f"\nГруппы с номером {sub} нет в списке доступных!"
-
-            except ValueError:
-                response = f"\n{sub} не является номером группы!"
-        if response:
-            self.send_msg(profile.external_id, response)
-        else:
-            self.send_msg(profile.external_id,
-                          VkBotMessages.NO_GROUP_FOR_SUB.value)
-
-    def unsubscribe(self, profile, unsubs, *args, **kargs):
-        response = ''
-        subs = Subscribe.objects.filter(profile=profile)
-        for unsub in unsubs:
-            try:
-                if 0 < int(unsub) < len(subs)+1:
-                    Subscribe.objects.get(
-                        profile=profile, group_subscribe=subs[int(unsub)-1].group_subscribe).delete()
-                    response = f"Подписка на группу {subs[int(unsub)-1].group_subscribe} успешно отменина"
-                else:
-                    response = f"\nГруппы с номером {unsub} нет в списке ваших подписок!"
-
-            except ValueError:
-                response = f"\n{unsub} не является номером группы!"
-
-        if response:
-            self.send_msg(profile.external_id, response)
-        else:
-            self.send_msg(profile.external_id,
-                          VkBotMessages.NO_GROUP_FOR_UNSUB.value)
-
-    def show_sch(self, profile, items, *args, **kargs):
-        cache = self.pars.get_cache()[self.pars.today-1]
-
-        if 0 < int(items[0]) < len(cache)+1:
-            self.send_msg(profile.external_id, "Расписание " + f"{cache[int(items[0])-1]['title']}: \n" + "\n".join(
-                [f"{idx+1}. {val}" for idx, val in enumerate(cache[int(items[0])-1]['lessons'])]))
-        else:
-            self.send_msg(
-                profile.external_id, f"\nГруппы с номером {items[0]} нет в списке доступных!")
-
-    def get_help(self, profile, *args, **kargs):
-        self.send_msg(profile.external_id, VkBotMessages.HELP.value)
 
     def mailing_schedule(self, group, text=""):
         for i in Subscribe.objects.filter(group_subscribe=group['title']):
